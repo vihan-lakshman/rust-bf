@@ -1,6 +1,4 @@
-use std::hash::{Hash};
-
-use fasthash::{metro, MetroHasher};
+use fasthash::{metro};
 
 pub struct BloomFilter {
 	bit_array: [bool; 256],
@@ -16,9 +14,9 @@ impl BloomFilter {
 		// TODO: Make the number of hashes configurable
 
 		let h = metro::hash64(value);
-		let usize hash_value = h % 256;
+		let hash_value = (h % 256) as usize;
 		println!("The hash value is {}", h);
-		self.bit_array[usize::from(h)] = true;
+		self.bit_array[hash_value] = true;
 	}
 
 	pub fn query(&mut self, value: &str) -> bool {
