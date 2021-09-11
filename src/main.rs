@@ -15,12 +15,14 @@ impl BloomFilter {
 
 		let h = metro::hash64(value);
 		let hash_value = (h % 256) as usize;
-		println!("The hash value is {}", h);
+		println!("The hash value is {}", hash_value);
 		self.bit_array[hash_value] = true;
 	}
 
 	pub fn query(&mut self, value: &str) -> bool {
-		true
+		let h = metro::hash64(value);
+		let hash_value = (h % 256) as usize;
+		return self.bit_array[hash_value];
 	}
 }
 
@@ -33,10 +35,14 @@ mod tests {
     #[test]
     fn basic_test() {
     	let mut bloom_filter = BloomFilter::new();
-    	let input = "spam";
-    	bloom_filter.insert(input);
-    	assert_eq!(10, 5 + 5);
-    	println!("The bit array is: {:?}", bloom_filter.bit_array);
+    	let input1 = "spam";
+    	let input2 = "spam2";
+
+    	bloom_filter.insert(input1);
+    	assert!(bloom_filter.bit_array[93] == true);
+
+    	assert!(bloom_filter.query(input1) == true);
+    	assert!(bloom_filter.query(input2) == false);
     }
 
 }
