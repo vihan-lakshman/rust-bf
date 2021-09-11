@@ -2,14 +2,6 @@ use std::hash::{Hash};
 
 use fasthash::{metro, MetroHasher};
 
-// This function from https://docs.rs/fasthash/0.3.2/fasthash/murmur3/index.html
-fn hash<T: Hash>(t: &T) -> u64 {
-    let mut s: MetroHasher = Default::default();
-    t.hash(&mut s);
-    s.finish()
-}
-
-
 pub struct BloomFilter {
 	bit_array: [bool; 256],
 }
@@ -24,8 +16,9 @@ impl BloomFilter {
 		// TODO: Make the number of hashes configurable
 
 		let h = metro::hash64(value);
+		let usize hash_value = h % 256;
 		println!("The hash value is {}", h);
-		self.bit_array[1] = true;
+		self.bit_array[usize::from(h)] = true;
 	}
 
 	pub fn query(&mut self, value: &str) -> bool {
