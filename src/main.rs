@@ -1,21 +1,35 @@
 use fasthash::{metro};
 
+const MAX_NUM_INSERTIONS: u32 = 10000;
+
 // We specify the error rate as a decimal between 0 and 1
 pub struct BloomFilter<const N: usize> {
 	bit_array: [bool; N],
-	error_rate: f32
+	num_hash_funcs: u8,
+	insertion_count: u64
 }
 
 impl<const N: usize> BloomFilter<N> {
-	pub fn new(error_rate) -> BloomFilter<N> {
-		Self {bit_array: [false; N],
-			  error_rate: error_rate}
+	// Do note: error_rate is out of 1, *not* in percentage points
+	pub fn new(false_positive_rate: f64) -> BloomFilter<N> {
+		if false_positive_rate > 1.0 {
+			panic!("Error rate cannot be over 1");
+		}
+
+		let num_hashes: u8 = false_positive_rate.powf(-1.0).log(10.0).ceil() as u8;
+
+		Self {
+			bit_array: [false; N],
+			num_hash_funcs: num_hashes,
+			insertion_count: 0
+		}
 	}
 
 	pub fn insert(&mut self, value: &str) {
-		// For now, hard code the hash functions here
-		// TODO: Make the number of hashes configurable
-
+		self.insertion_count += 1;
+		if self.insertion_count > MAX_NUM_INSERTIONS.into() {
+			panic!("Too many insertions!"); // Probably shouldn't panic, should return
+		}
 		let h = metro::hash64(value);
 		let hash_value = (h % 256) as usize;
 		println!("The hash value is {}", hash_value);
@@ -29,7 +43,6 @@ impl<const N: usize> BloomFilter<N> {
 	}
 }
 
-
 // tests are good
 #[cfg(test)]
 mod tests {
@@ -37,7 +50,7 @@ mod tests {
 
     #[test]
     fn basic_test() {
-    	let mut bloom_filter: BloomFilter<256> = BloomFilter::new();
+    	let mut bloom_filter: BloomFilter<256> = BloomFilter::new(0.01);
     	let input1 = "spam";
     	let input2 = "spam2";
 
