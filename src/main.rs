@@ -1,12 +1,12 @@
 use fasthash::{metro};
 
-pub struct BloomFilter {
-	bit_array: [bool; 256],
+pub struct BloomFilter<const N: usize> {
+	bit_array: [bool; N],
 }
 
-impl BloomFilter {
-	pub fn new() -> BloomFilter {
-		BloomFilter {bit_array: [false; 256]}
+impl<const N: usize> BloomFilter<N> {
+	pub fn new() -> BloomFilter<N> {
+		Self {bit_array: [false; N]}
 	}
 
 	pub fn insert(&mut self, value: &str) {
@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn basic_test() {
-    	let mut bloom_filter = BloomFilter::new();
+    	let mut bloom_filter: BloomFilter<256> = BloomFilter::new();
     	let input1 = "spam";
     	let input2 = "spam2";
 
@@ -44,7 +44,4 @@ mod tests {
     	assert!(bloom_filter.query(input1) == true);
     	assert!(bloom_filter.query(input2) == false);
     }
-
 }
-
-
