@@ -1,12 +1,15 @@
 use fasthash::{metro};
 
+// We specify the error rate as a decimal between 0 and 1
 pub struct BloomFilter<const N: usize> {
 	bit_array: [bool; N],
+	error_rate: f32
 }
 
 impl<const N: usize> BloomFilter<N> {
-	pub fn new() -> BloomFilter<N> {
-		Self {bit_array: [false; N]}
+	pub fn new(error_rate) -> BloomFilter<N> {
+		Self {bit_array: [false; N],
+			  error_rate: error_rate}
 	}
 
 	pub fn insert(&mut self, value: &str) {
